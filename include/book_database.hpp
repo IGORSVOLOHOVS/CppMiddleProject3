@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <flat_set>
 
 #include "book.hpp"
 #include "concepts.hpp"
@@ -25,17 +26,16 @@ public:
     using const_iterator = typename BookContainer::const_iterator;
 
 
-    using AuthorContainer = std::vector<std::string>; 
+    using AuthorContainer = std::flat_set<std::string>; 
 
     BookDatabase() = default;
 
     BookDatabase(std::initializer_list<Book> books_init) {
         books_.reserve(books_init.size());
-        authors_.reserve(books_init.size()); 
 
         for (const auto& book : books_init) {
-            authors_.emplace_back(book.author); 
-            books_.emplace_back(authors_.back(), book.title, book.year, book.genre, book.rating, book.read_count);
+            auto author_it = authors_.insert(book.author); 
+            books_.emplace_back(*author_it.first, book.title, book.year, book.genre, book.rating, book.read_count);
         }
     }
 
@@ -73,7 +73,6 @@ public:
 
     void reserve(size_type new_cap) {
         books_.reserve(new_cap);
-        authors_.reserve(new_cap); 
     }
 
     size_type capacity() const {
@@ -82,14 +81,14 @@ public:
 
 
     BookDatabase<BookContainer>& EmplaceBack(std::string author, std::string title, int year, Genre genre, double rating, int read_count){
-        authors_.emplace_back(std::move(author)); 
-        books_.emplace_back(authors_.back(), std::move(title), year, genre, rating, read_count);
+        auto author_it = authors_.emplace(author); 
+        books_.emplace_back(*author_it.first, title, year, genre, rating, read_count);
         return *this;
     }
 
     void PushBack(std::string author, std::string title, int year, Genre genre, double rating, int read_count){
-        authors_.push_back(author); 
-        books_.push_back(Book(authors_.back(), std::move(title), year, genre, rating, read_count));
+        auto author_it = authors_.emplace(author); 
+        books_.push_back({*author_it.first, std::move(title), year, genre, rating, read_count});
     }
 
     void Clear() {
