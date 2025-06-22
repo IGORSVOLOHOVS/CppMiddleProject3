@@ -9,6 +9,7 @@
 #include "book_database.hpp"
 #include "comparators.hpp" 
 #include "heterogeneous_lookup.hpp" 
+#include <format> // Добавлено для std::formatter
 
 #include <print>
 
@@ -33,14 +34,14 @@ auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {})
     return h;
 }
 
-template <BookContainerLike T>
-auto calculateGenreRatings(const BookDatabase<T>& db) {
-    if (db.empty()) {
+template <std::input_iterator InputIt>
+auto calculateGenreRatings(InputIt first, InputIt last) {
+    if (first == last) {
         return std::flat_map<Genre, double>{};
     }
     
     std::flat_map<Genre, std::pair<double, int>> ratings_and_counts;
-    std::for_each(db.cbegin(), db.cend(), [&ratings_and_counts](const Book& book){
+    std::for_each(first, last, [&ratings_and_counts](const auto& book){
         auto it = ratings_and_counts.lower_bound(book.genre);
         if (it != ratings_and_counts.end() && it->first == book.genre) {
             it->second.first += book.rating;
@@ -115,3 +116,28 @@ auto getTopNBy(BookDatabase<T>& db, size_t n, Comp comp) {
 }
 
 }  // namespace bookdb
+
+namespace std {
+template <typename K, typename V, typename C, typename KC, typename MC>
+struct formatter<std::flat_map<K, V, C, KC, MC>> {
+    template <typename FormatContext>
+    auto format(const std::flat_map<K, V, C, KC, MC>& m, FormatContext& fc) const {
+        auto out = fc.out();
+        out = format_to(out, "{{");
+        bool first = true;
+        for (const auto& [key, value] : m) {
+            if (!first) {
+                out = format_to(out, ", ");
+            }
+            first = false;
+            out = format_to(out, "\"{}\": {}", key, value);
+        }
+        out = format_to(out, "}}");
+        return out;
+    }
+
+    constexpr auto parse(format_parse_context& ctx) {
+        return ctx.begin();
+    }
+};
+}

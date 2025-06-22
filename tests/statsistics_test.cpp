@@ -30,12 +30,12 @@ TEST_F(StatisticsTest, AuthorHistogram) {
 }
 
 TEST_F(StatisticsTest, GenreRatings) {
-    auto ratings = calculateGenreRatings(db);
+    auto ratings = calculateGenreRatings(db.begin(), db.end());
     EXPECT_EQ(ratings.size(), 2);
     EXPECT_NEAR(ratings[Genre::SciFi], (4.8 + 4.5) / 2.0, 1e-9);
     EXPECT_NEAR(ratings[Genre::Fiction], (4.4 + 4.9) / 2.0, 1e-9);
     
-    auto empty_ratings = calculateGenreRatings(empty_db);
+    auto empty_ratings = calculateGenreRatings(empty_db.begin(), empty_db.end());
     EXPECT_TRUE(empty_ratings.empty());
 }
 
