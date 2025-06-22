@@ -25,14 +25,14 @@ namespace bookdb {
         };
     }
 
-    template <typename... Predicates>
+    template <BookPredicate... Predicates>
     auto all_of(Predicates... preds) {
         return [=](const Book& book) { 
             return (preds(book) && ...);
         };
     }
 
-    template <typename... Predicates>
+    template <BookPredicate... Predicates>
     auto any_of(Predicates... preds) {
         return [=](const Book& book) { 
             return (preds(book) || ...);
@@ -40,19 +40,17 @@ namespace bookdb {
     }
 
 
-    template <typename InputIt, typename Predicate>
-    std::vector<std::reference_wrapper<const bookdb::Book>> filterBooks(
-        InputIt first, InputIt last, Predicate p) {
-        
+    template <std::input_iterator InputIt, BookPredicate Predicate>
+    std::vector<std::reference_wrapper<const bookdb::Book>> filterBooks(InputIt first, InputIt last, Predicate p) {
         std::vector<std::reference_wrapper<const bookdb::Book>> result;
-        result.reserve(std::distance(first, last)); 
-
-        std::for_each(first, last, [&](const auto& element) {
-            if (p(element)) {
-                result.emplace_back(std::cref(element)); 
+        if constexpr (std::forward_iterator<InputIt>) {
+            auto dist = std::distance(first, last);
+            if (dist > 0) {
+                result.reserve(dist);
             }
-        });
-        
+        }
+
+        std::copy_if(first, last, std::back_inserter(result), p);
         return result;
     }
 }  // namespace bookdb
