@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 3.30)
 project(BookDB VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 26)
+if(MSVC)
+    # У MSVC нет отдельного ключа /std:c++26, и CMake не знает, чем включить
+    # диалект CXX26 для cl.exe, — генерация обрывается с "does not support this".
+    # Значение 23 CMake разворачивает в /std:c++latest, то есть ровно в тот же
+    # режим "самый свежий стандарт", который нужен <print> и <flat_map>.
+    set(CMAKE_CXX_STANDARD 23)
+else()
+    set(CMAKE_CXX_STANDARD 26)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -12,6 +20,16 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
     # Не больше одной ошибки за раз
     add_compile_options(-fmax-errors=1)
+endif()
+
+if(MSVC)
+    # Исходники лежат в UTF-8 без BOM. Без /utf-8 cl.exe читает их в системной
+    # ANSI-кодировке, и результат сборки начинает зависеть от локали машины:
+    # на неподходящей кодовой странице появляется C4819, а литералы вроде
+    # "Charlotte Brontë" и "рейтинг ≥ 4.5" молча портятся. Ключ фиксирует и
+    # исходную, и исполняемую кодировку как UTF-8. На GCC это уже поведение
+    # по умолчанию, поэтому Linux-сборка не меняется.
+    add_compile_options(/utf-8)
 endif()
 
 # Ищем необходимые библиотеки

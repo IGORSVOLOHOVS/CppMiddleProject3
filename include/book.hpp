@@ -3,7 +3,9 @@
 #include <format>
 #include <stdexcept>
 #include <string_view>
-#include <flat_map>
+// Вместо <flat_map> напрямую: MSVC STL этот заголовок пока не поставляет.
+// На GCC/libstdc++ flat_map_compat.hpp — просто алиас на std::flat_map.
+#include "flat_map_compat.hpp"
 
 using namespace std::string_view_literals;
 

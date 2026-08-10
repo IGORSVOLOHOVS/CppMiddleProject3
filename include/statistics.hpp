@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <numeric>  // std::accumulate: libstdc++ подтягивает его транзитивно, MSVC STL — нет
 #include <random>
 #include <stdexcept>
 #include <string_view>
@@ -17,7 +18,7 @@ namespace bookdb {
     
 template <BookContainerLike T, typename Comparator = TransparentStringLess>
 auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {}) {
-    std::flat_map<std::string_view, int, Comparator> h(comp);
+    flat_map<std::string_view, int, Comparator> h(comp);
     if(cont.empty()){
         return h;
     }
@@ -37,10 +38,10 @@ auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {})
 template <std::input_iterator InputIt>
 auto calculateGenreRatings(InputIt first, InputIt last) {
     if (first == last) {
-        return std::flat_map<Genre, double>{};
+        return flat_map<Genre, double>{};
     }
-    
-    std::flat_map<Genre, std::pair<double, int>> ratings_and_counts;
+
+    flat_map<Genre, std::pair<double, int>> ratings_and_counts;
     std::for_each(first, last, [&ratings_and_counts](const auto& book){
         auto it = ratings_and_counts.lower_bound(book.genre);
         if (it != ratings_and_counts.end() && it->first == book.genre) {
@@ -51,7 +52,7 @@ auto calculateGenreRatings(InputIt first, InputIt last) {
         }
     });
 
-    std::flat_map<Genre, double> avg_ratings;
+    flat_map<Genre, double> avg_ratings;
     for (const auto& [genre, pair] : ratings_and_counts) {
         if (pair.second > 0) {
             avg_ratings.emplace(genre, pair.first / pair.second);
@@ -118,10 +119,13 @@ auto getTopNBy(BookDatabase<T>& db, size_t n, Comp comp) {
 }  // namespace bookdb
 
 namespace std {
+// bookdb::flat_map — это std::flat_map там, где он есть (Linux/GCC 15), и
+// замена из flat_map_compat.hpp там, где его нет (MSVC). Специализация одна
+// и та же для обеих платформ.
 template <typename K, typename V, typename C, typename KC, typename MC>
-struct formatter<std::flat_map<K, V, C, KC, MC>> {
+struct formatter<bookdb::flat_map<K, V, C, KC, MC>> {
     template <typename FormatContext>
-    auto format(const std::flat_map<K, V, C, KC, MC>& m, FormatContext& fc) const {
+    auto format(const bookdb::flat_map<K, V, C, KC, MC>& m, FormatContext& fc) const {
         auto out = fc.out();
         out = format_to(out, "{{");
         bool first = true;
