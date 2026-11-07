@@ -1,10 +1,10 @@
-#pragma once
+#ifndef BOOKDB_BOOK_DATABASE_HPP
+#define BOOKDB_BOOK_DATABASE_HPP
 
-#include <print>
 #include <string>
 #include <string_view>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 #include "book.hpp"
 #include "concepts.hpp"
@@ -31,12 +31,13 @@ public:
 
     BookDatabase(std::initializer_list<Book> books_init) {
         books_.reserve(books_init.size());
-        for (const auto& book_val : books_init) {
+        for (const auto &book_val : books_init) {
             auto [author_it, inserted] = authors_.insert(std::string(book_val.author));
-            books_.emplace_back(*author_it, book_val.title, book_val.year, book_val.genre, book_val.rating, book_val.read_count);
+            books_.emplace_back(*author_it, book_val.title, book_val.year, book_val.genre, book_val.rating,
+                                book_val.read_count);
         }
     }
-    
+
     iterator begin() { return books_.begin(); }
     iterator end() { return books_.end(); }
     const_iterator begin() const { return books_.cbegin(); }
@@ -54,7 +55,7 @@ public:
         books_.emplace_back(*author_it, std::move(title), year, genre, rating, read_count);
     }
 
-    void PushBack(const Book& book) {
+    void PushBack(const Book &book) {
         auto [author_it, inserted] = authors_.insert(std::string(book.author));
         books_.push_back({*author_it, book.title, book.year, book.genre, book.rating, book.read_count});
     }
@@ -69,10 +70,10 @@ public:
     reference at(size_type pos) { return books_.at(pos); }
     const_reference at(size_type pos) const { return books_.at(pos); }
 
-    const BookContainer& GetBooks() const { return books_; }
-    const AuthorContainer& GetAuthors() const { return authors_; }
-    BookContainer& GetBooks() { return books_; }
-    AuthorContainer& GetAuthors() { return authors_; }
+    const BookContainer &GetBooks() const { return books_; }
+    const AuthorContainer &GetAuthors() const { return authors_; }
+    BookContainer &GetBooks() { return books_; }
+    AuthorContainer &GetAuthors() { return authors_; }
 
 private:
     BookContainer books_;
@@ -105,3 +106,5 @@ struct formatter<bookdb::BookDatabase<std::vector<bookdb::Book>>> {
     }
 };
 }  // namespace std
+
+#endif  // BOOKDB_BOOK_DATABASE_HPP

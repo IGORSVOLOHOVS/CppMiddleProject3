@@ -5,9 +5,27 @@
 #include "filters.hpp"
 #include "statistics.hpp"
 
+#if __has_include(<print>)
+#include <print>
+using std::print;
+#else
+// g++ 13 has no <print>, so the same call goes through std::format.
+#include <cstdio>
+#include <format>
+#include <string>
+#include <utility>
+
+template <typename... Args>
+void print(std::format_string<Args...> text, Args &&...args) {
+    const std::string line = std::format(text, std::forward<Args>(args)...);
+    std::fwrite(line.data(), 1, line.size(), stdout);
+}
+#endif
+
 using namespace bookdb;
 
-int main() {
+// std::format and the library can fail here, and a demo that stops on it says what went wrong.
+int main() {  // NOLINT(bugprone-exception-escape)
     //
     // Ниже приведён пример работы `BookDatabase`.
     //
@@ -20,7 +38,6 @@ int main() {
     // Create a book database
     BookDatabase<std::vector<Book>> db;
 
-
     // Add some books
     db.EmplaceBack("1984", "George Orwell", 1949, Genre::SciFi, 4., 190);
     db.EmplaceBack("Animal Farm", "George Orwell", 1945, Genre::Fiction, 4.4, 143);
@@ -32,41 +49,40 @@ int main() {
     db.EmplaceBack("Jane Eyre", "Charlotte Brontë", 1847, Genre::Fiction, 4.6, 110);
     db.EmplaceBack("The Hobbit", "J.R.R. Tolkien", 1937, Genre::Fiction, 4.9, 203);
     db.EmplaceBack("Lord of the Flies", "William Golding", 1954, Genre::Fiction, 4.2, 89);
-    std::print("Books: {}\n\n", db);
+    print("Books: {}\n\n", db);
 
     // Sorts
     std::sort(db.begin(), db.end(), comp::LessByAuthor{});
-    std::print("Books sorted by author: {}\n\n==================\n", db);
+    print("Books sorted by author: {}\n\n==================\n", db);
 
     std::sort(db.begin(), db.end(), comp::LessByPopularity{});
-    std::print("Books sorted by popularity: {}\n\n==================\n", db);
+    print("Books sorted by popularity: {}\n\n==================\n", db);
 
     // Author histogram
     auto histogram = buildAuthorHistogramFlat(db);
-    std::print("Author histogram: {}", histogram);
+    print("Author histogram: {}", histogram);
 
     // Ratings
     auto genreRatings = calculateGenreRatings(db.begin(), db.end());
-    std::print("\n\nAverage ratings by genres: {}\n", genreRatings);
+    print("\n\nAverage ratings by genres: {}\n", genreRatings);
 
     auto avrRating = calculateAverageRating(db);
-    std::print("Average books rating in library: {}\n", avrRating);
+    print("Average books rating in library: {}\n", avrRating);
 
     // Filters
     auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
-    std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
-    std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
+    print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
+    std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { print("{}\n", v.get()); });
 
     // Top 3 books
     auto topBooks = getTopNBy(db, 3, comp::LessByRating{});
-    std::print("\n\nTop 3 books by rating:\n");
-    std::for_each(topBooks.cbegin(), topBooks.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
+    print("\n\nTop 3 books by rating:\n");
+    std::for_each(topBooks.cbegin(), topBooks.cend(), [](const auto &v) { print("{}\n", v.get()); });
 
     auto orwellBookIt = std::find_if(db.begin(), db.end(), [](const auto &v) { return v.author == "George Orwell"; });
     if (orwellBookIt != db.end()) {
-        std::print("\n\nTransparent lookup by authors. Found Orwell's book: {}\n", *orwellBookIt);
+        print("\n\nTransparent lookup by authors. Found Orwell's book: {}\n", *orwellBookIt);
     }
 
     return 0;
 }
-
