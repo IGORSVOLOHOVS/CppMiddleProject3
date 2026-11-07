@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
-#include "statistics.hpp"
 #include "book_database.hpp"
 #include "comparators.hpp"
+#include "statistics.hpp"
+#include <gtest/gtest.h>
 
 using namespace bookdb;
 
@@ -34,7 +34,7 @@ TEST_F(StatisticsTest, GenreRatings) {
     EXPECT_EQ(ratings.size(), 2);
     EXPECT_NEAR(ratings[Genre::SciFi], (4.8 + 4.5) / 2.0, 1e-9);
     EXPECT_NEAR(ratings[Genre::Fiction], (4.4 + 4.9) / 2.0, 1e-9);
-    
+
     auto empty_ratings = calculateGenreRatings(empty_db.begin(), empty_db.end());
     EXPECT_TRUE(empty_ratings.empty());
 }
@@ -52,7 +52,7 @@ TEST_F(StatisticsTest, SampleRandomBooks) {
     EXPECT_EQ(sample1.size(), 2);
 
     EXPECT_THROW(sampleRandomBooks(db, 10), std::logic_error);
-    
+
     auto sample0 = sampleRandomBooks(db, 0);
     EXPECT_TRUE(sample0.empty());
 }
@@ -60,9 +60,9 @@ TEST_F(StatisticsTest, SampleRandomBooks) {
 TEST_F(StatisticsTest, GetTopNByRating) {
     auto top2 = getTopNBy(db, 2, comp::GreaterByRating{});
     EXPECT_EQ(top2.size(), 2);
-    EXPECT_EQ(top2[0].get().title, "The Hobbit"); // 4.9
-    EXPECT_EQ(top2[1].get().title, "1984"); // 4.8
-    
+    EXPECT_EQ(top2[0].get().title, "The Hobbit");  // 4.9
+    EXPECT_EQ(top2[1].get().title, "1984");        // 4.8
+
     EXPECT_EQ(db.GetBooks()[0].title, "The Hobbit");
     EXPECT_EQ(db.GetBooks()[1].title, "1984");
 }
@@ -70,8 +70,7 @@ TEST_F(StatisticsTest, GetTopNByRating) {
 TEST_F(StatisticsTest, GetTopNByPopularity) {
     auto top3 = getTopNBy(db, 3, comp::GreaterByPopularity{});
     EXPECT_EQ(top3.size(), 3);
-    EXPECT_EQ(top3[0].get().title, "The Hobbit"); // 300
-    EXPECT_EQ(top3[1].get().title, "1984"); // 200
-    EXPECT_EQ(top3[2].get().title, "Brave New World"); // 180
+    EXPECT_EQ(top3[0].get().title, "The Hobbit");       // 300
+    EXPECT_EQ(top3[1].get().title, "1984");             // 200
+    EXPECT_EQ(top3[2].get().title, "Brave New World");  // 180
 }
-

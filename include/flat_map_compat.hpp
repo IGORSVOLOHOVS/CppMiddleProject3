@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BOOKDB_FLAT_MAP_COMPAT_HPP
+#define BOOKDB_FLAT_MAP_COMPAT_HPP
 
 //
 // Зачем этот заголовок нужен.
@@ -154,3 +155,5 @@ private:
 }  // namespace bookdb
 
 #endif  // __cpp_lib_flat_map
+
+#endif  // BOOKDB_FLAT_MAP_COMPAT_HPP
