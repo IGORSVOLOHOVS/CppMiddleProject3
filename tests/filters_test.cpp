@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-#include "filters.hpp"
 #include "book_database.hpp"
+#include "filters.hpp"
+#include <gtest/gtest.h>
 
 using namespace bookdb;
 
@@ -29,7 +29,7 @@ TEST_F(FiltersTest, FilterByGenre) {
 
 TEST_F(FiltersTest, FilterByRating) {
     auto high_rating_books = filterBooks(db.begin(), db.end(), RatingAbove(4.6));
-    EXPECT_EQ(high_rating_books.size(), 2); 
+    EXPECT_EQ(high_rating_books.size(), 2);
 }
 
 TEST_F(FiltersTest, AllOfComposition) {
