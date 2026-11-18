@@ -3,6 +3,32 @@
 Reverse-engineered from commit `86d4eea` (tag `v1.0.0`) on 2026-11-18. Every requirement states only behaviour
 present in the code at that commit. The documentation hub is [`docs/README.md`](docs/README.md).
 
+<!-- jira-sync:start -->
+Jira: KAN-100
+
+## Tasks
+
+This list is one ticket in Jira project KAN, [KAN-100](https://igorsvolohovs.atlassian.net/browse/KAN-100). Each line is a checkbox there: tick it in Jira and the sync ticks it here; add a checkbox there and it is appended here. Done items are the features described in section 3; open items are what the project declares but the code does not do yet.
+
+- [x] Books and genres (section 3.1) <!-- spec-books-and-genres -->
+- [x] Concepts (section 3.2) <!-- spec-concepts -->
+- [x] Book database (section 3.3) <!-- spec-book-database -->
+- [x] Comparators (section 3.4) <!-- spec-comparators -->
+- [x] Filters (section 3.5) <!-- spec-filters -->
+- [x] Heterogeneous lookup (section 3.6) <!-- spec-heterogeneous-lookup -->
+- [x] Statistics (section 3.7) <!-- spec-statistics -->
+- [x] Portability shims (section 3.8) <!-- spec-portability-shims -->
+- [x] Demo (section 3.9) <!-- spec-demo -->
+- [x] Build (section 3.10) <!-- spec-build -->
+- [ ] `sampleRandomBooks` throws for a count above the database size (declared, not implemented) <!-- spec-samplerandombooks-throws-for-a-count-above-the-dat -->
+- [ ] "Transparent lookup by authors" in the demo (declared, not implemented) <!-- spec-transparent-lookup-by-authors-in-the-demo -->
+- [ ] "Top 3 books by rating" in the demo (declared, not implemented) <!-- spec-top-3-books-by-rating-in-the-demo -->
+- [ ] The course asked for C++26 on GCC 15 (declared, not implemented) <!-- spec-the-course-asked-for-c-26-on-gcc-15 -->
+- [ ] Run `run_clang_format.sh` before committing (declared, not implemented) <!-- spec-run-runclangformat-sh-before-committing -->
+- [ ] Conan supplies GTest to the presets (declared, not implemented) <!-- spec-conan-supplies-gtest-to-the-presets -->
+
+<!-- jira-sync:end -->
+
 ## 1. Purpose and scope
 
 The system is a header-only C++23 library, namespace `bookdb`, that stores books in memory and computes
